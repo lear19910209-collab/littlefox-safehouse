@@ -704,6 +704,8 @@ if(e.key === "ArrowRight") nextBtn.click();
 function initActions(){
 toggleView.addEventListener("click", () => {
 grid.classList.toggle("timeline-mode");
+toggleView.addEventListener("click", () => {
+    grid.classList.toggle("timeline-mode");
 
         // 切换图标：如果是星轨模式显示 '田' (回宫格)，否则显示 '🌌'
         const isTimeline = grid.classList.contains("timeline-mode");

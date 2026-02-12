@@ -1,888 +1,101 @@
-fox-lion-letters/
-  index.html
-  <!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>小狐狸与大狮子的信箱</title>
-  <link rel="stylesheet" href="style.css" />
-  <meta name="color-scheme" content="light dark" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白泽写给小狐狸的信</title>
+    <style>
+        :root {
+            --bg: #0f1216;
+            --card: rgba(255,255,255,.06);
+            --card2: rgba(255,255,255,.09);
+            --text: rgba(255,255,255,.92);
+            --muted: rgba(255,255,255,.68);
+            --line: rgba(255,255,255,.14);
+            --paper: #f6f0e7;
+            --ink: #1d1b18;
+            --fox: #ff7b3a;
+            --lion: #f2c14e;
+            --mint: #86efac;
+            --shadow: 0 16px 50px rgba(0,0,0,.45);
+            --radius: 18px;
+            --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            background: radial-gradient(900px 700px at 15% 10%, rgba(255,123,58,.22), transparent 55%),
+                        radial-gradient(900px 700px at 85% 20%, rgba(242,193,78,.22), transparent 55%),
+                        radial-gradient(1200px 900px at 50% 100%, rgba(134,239,172,.1), transparent 55%),
+                        var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container { max-width: 980px; margin: 0 auto; padding: 20px; }
+        .topbar { position: sticky; top: 0; background: rgba(15,18,22,.8); backdrop-filter: blur(14px); padding: 20px; border-bottom: 1px solid var(--line); z-index: 100; }
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin-top: 20px; transition: 0.3s; }
+        .card:hover { border-color: var(--fox); transform: translateY(-2px); }
+        .letter-content { background: var(--paper); color: var(--ink); padding: 40px; border-radius: 12px; line-height: 1.8; white-space: pre-wrap; margin-top: 20px; }
+        .tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: var(--card2); font-size: 12px; margin-right: 8px; border: 1px solid var(--line); }
+        h1 { font-size: 20px; margin: 0; }
+        .footer { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+    </style>
 </head>
-
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <!-- 简单小图标：狐狸尾巴 + 狮子鬃毛 -->
-        <svg viewBox="0 0 64 64" class="mark">
-          <path d="M10 40c10-8 14-18 14-26 8 8 12 18 10 30-1 6-5 12-12 14-6 2-10-1-12-5z" />
-          <path d="M40 18c8 0 14 6 14 14 0 10-8 18-18 18-8 0-14-6-14-14 0-10 8-18 18-18z" opacity=".35"/>
-          <path d="M41 16c8 2 14 10 14 18 0 12-10 22-22 22-4 0-8-1-11-3 4 1 8 0 12-2 8-4 12-12 10-22-1-6-2-9-3-13z" opacity=".18"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>小狐狸与大狮子的信箱</h1>
-        <p>把温柔收纳起来，想你的时候就拆一封信。</p>
-      </div>
+
+<div class="topbar">
+    <div class="container">
+        <h1>🦊🦁 把信留给未来的你们</h1>
     </div>
+</div>
 
-    <div class="actions">
-      <button id="toggleTheme" class="btn ghost" type="button" title="切换夜间模式">🌙</button>
-      <button id="showFavorites" class="btn ghost" type="button" title="只看收藏">⭐</button>
+<div class="container" id="app">
+    <div id="loading-tip" class="card">
+        <h3>📫 正在从仓库取信...</h3>
+        <p>如果长时间不显示，请检查 letters/manifest.json 是否填写正确。</p>
     </div>
-  </header>
+    <div id="letter-list"></div>
+</div>
 
-  <main class="container">
-    <section class="controls">
-      <div class="searchbox">
-        <input id="search" type="search" placeholder="搜索标题、标签、正文关键词…" autocomplete="off" />
-      </div>
-      <div class="filters">
-        <div id="tagBar" class="tagbar" aria-label="标签筛选"></div>
-      </div>
-    </section>
+<div class="footer">
+    <span>🦊🦁 · 把信留给未来的你们</span>
+</div>
 
-    <section>
-      <div id="grid" class="grid" aria-live="polite"></div>
-      <div id="empty" class="empty hidden">
-        <div class="empty-card">
-          <h2>这里还没有信</h2>
-          <p>你可以先把第一封信放进 <code>letters/</code>，然后在 <code>letters/manifest.json</code> 登记它。</p>
-        </div>
-      </div>
-    </section>
-  </main>
+<script>
+    // 这段脚本会自动去读取你的 manifest.json
+    async function loadLetters() {
+        try {
+            const response = await fetch('letters/manifest.json');
+            const data = await response.json();
+            const listDiv = document.getElementById('letter-list');
+            const tipDiv = document.getElementById('loading-tip');
+            
+            if (data.length > 0) {
+                tipDiv.style.display = 'none';
+                for (const item of data) {
+                    // 读取具体的信件内容
+                    const res = await fetch(item.content);
+                    const text = await res.text();
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div style="color:var(--fox); font-weight:bold; margin-bottom:10px;">${item.date}</div>
+                        <h2 style="margin:0 0 15px 0;">${item.title}</h2>
+                        <div>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div class="letter-content">${text}</div>
+                    `;
+                    listDiv.appendChild(card);
+                }
+            }
+        } catch (e) {
+            console.error("加载信件失败:", e);
+        }
+    }
+    loadLetters();
+</script>
 
-  <!-- 阅读弹窗 -->
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="阅读信件">
-    <div class="modal-backdrop" id="closeModal"></div>
-    <div class="modal-card">
-      <div class="modal-top">
-        <div class="modal-meta">
-          <div class="modal-title" id="mTitle">标题</div>
-          <div class="modal-sub" id="mSub">日期 · 心情 · 标签</div>
-        </div>
-        <div class="modal-actions">
-          <button id="favBtn" class="btn" type="button" title="收藏这封信">⭐ 收藏</button>
-          <button id="copyBtn" class="btn ghost" type="button" title="复制正文">📋</button>
-          <button id="xBtn" class="btn ghost" type="button" title="关闭">✕</button>
-        </div>
-      </div>
-
-      <article id="mBody" class="letter" tabindex="0"></article>
-
-      <div class="modal-nav">
-        <button id="prevBtn" class="btn ghost" type="button">← 上一封</button>
-        <button id="nextBtn" class="btn ghost" type="button">下一封 →</button>
-      </div>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <span>🦊🦁</span>
-    <span class="dot">•</span>
-    <span>把信留给未来的你们</span>
-  </footer>
-
-  <script src="app.js"></script>
 </body>
 </html>
-  style.css
-  :root{
-  --bg: #0f1216;
-  --card: rgba(255,255,255,.06);
-  --card2: rgba(255,255,255,.09);
-  --text: rgba(255,255,255,.92);
-  --muted: rgba(255,255,255,.68);
-  --line: rgba(255,255,255,.14);
-
-  --paper: #f6f0e7;
-  --ink: #1d1b18;
-
-  --fox: #ff7b3a;
-  --lion: #f2c14e;
-  --mint: #86efac;
-
-  --shadow: 0 16px 50px rgba(0,0,0,.45);
-  --radius: 18px;
-
-  --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", Arial;
-}
-
-[data-theme="light"]{
-  --bg: #fff9f1;
-  --card: rgba(20,16,10,.06);
-  --card2: rgba(20,16,10,.09);
-  --text: rgba(20,16,10,.92);
-  --muted: rgba(20,16,10,.62);
-  --line: rgba(20,16,10,.14);
-
-  --paper: #fffdf9;
-  --ink: #1d1b18;
-
-  --shadow: 0 18px 60px rgba(20,16,10,.18);
-}
-
-*{ box-sizing: border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: var(--font);
-  background:
-    radial-gradient(900px 700px at 15% 10%, rgba(255,123,58,.22), transparent 55%),
-    radial-gradient(900px 700px at 85% 20%, rgba(242,193,78,.22), transparent 55%),
-    radial-gradient(1200px 900px at 50% 100%, rgba(134,239,172,.10), transparent 55%),
-    var(--bg);
-  color: var(--text);
-}
-
-code{ padding:.12em .35em; border-radius:8px; background: var(--card); border:1px solid var(--line); }
-
-.topbar{
-  position: sticky;
-  top:0;
-  z-index: 5;
-  backdrop-filter: blur(14px);
-  background: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,0));
-  border-bottom: 1px solid var(--line);
-  padding: 18px 18px 14px;
-}
-[data-theme="light"] .topbar{
-  background: linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,0));
-}
-
-.brand{
-  display:flex;
-  gap: 14px;
-  align-items:center;
-  max-width: 980px;
-  margin: 0 auto;
-}
-.logo{
-  width: 48px; height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255,123,58,.24), rgba(242,193,78,.20));
-  border: 1px solid var(--line);
-  display:grid;
-  place-items:center;
-  box-shadow: var(--shadow);
-}
-.mark{ width: 30px; height:30px; fill: var(--text); opacity:.92; }
-
-.brand-text h1{
-  font-size: 18px;
-  margin:0;
-  letter-spacing:.2px;
-}
-.brand-text p{
-  margin: 3px 0 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.actions{
-  position:absolute;
-  right:18px;
-  top:18px;
-  display:flex;
-  gap:10px;
-}
-.btn{
-  border:1px solid var(--line);
-  background: var(--card2);
-  color: var(--text);
-  border-radius: 14px;
-  padding: 10px 12px;
-  cursor:pointer;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease;
-  user-select:none;
-}
-.btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
-.btn:active{ transform: translateY(0px) scale(.99); }
-.btn.ghost{ background: transparent; }
-
-.container{
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 18px 18px 34px;
-}
-
-.controls{
-  display:flex;
-  gap: 12px;
-  align-items:flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin: 12px 0 10px;
-}
-.searchbox{
-  flex: 1 1 280px;
-}
-#search{
-  width:100%;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border:1px solid var(--line);
-  background: var(--card);
-  color: var(--text);
-  outline: none;
-}
-#search::placeholder{ color: rgba(255,255,255,.55); }
-[data-theme="light"] #search::placeholder{ color: rgba(20,16,10,.50); }
-
-.tagbar{
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.tag{
-  font-size: 12px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border:1px solid var(--line);
-  background: transparent;
-  color: var(--muted);
-  cursor:pointer;
-  transition: background .12s ease, color .12s ease;
-}
-.tag.active{
-  background: rgba(255,123,58,.18);
-  color: var(--text);
-  border-color: rgba(255,123,58,.35);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 12px;
-}
-@media (max-width: 900px){
-  .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 560px){
-  .grid{ grid-template-columns: 1fr; }
-  .actions{ position: static; margin: 10px auto 0; justify-content: flex-end; max-width:980px; }
-  .topbar{ padding-bottom: 10px; }
-}
-
-.card{
-  border-radius: var(--radius);
-  border:1px solid var(--line);
-  background: linear-gradient(180deg, var(--card2), var(--card));
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  cursor:pointer;
-  transition: transform .14s ease, border-color .14s ease;
-}
-.card:hover{ transform: translateY(-2px); border-color: rgba(255,255,255,.22); }
-
-.envelope{
-  padding: 14px 14px 12px;
-  position: relative;
-}
-.envelope::before{
-  content:"";
-  position:absolute;
-  inset: 0;
-  background:
-    radial-gradient(700px 200px at 20% 0%, rgba(255,123,58,.20), transparent 60%),
-    radial-gradient(700px 200px at 80% 20%, rgba(242,193,78,.18), transparent 60%);
-  opacity:.9;
-  pointer-events:none;
-}
-.card-top{
-  position: relative;
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.badge{
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border:1px solid var(--line);
-  background: rgba(134,239,172,.12);
-  color: var(--text);
-}
-.stars{
-  font-size: 14px;
-  opacity:.9;
-}
-.title{
-  position: relative;
-  font-size: 16px;
-  margin: 12px 0 6px;
-  letter-spacing:.2px;
-}
-.meta{
-  position: relative;
-  font-size: 12px;
-  color: var(--muted);
-  display:flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.snippet{
-  position: relative;
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-  display:-webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow:hidden;
-}
-.tags{
-  position: relative;
-  margin-top: 12px;
-  display:flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.pill{
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px dashed var(--line);
-  color: var(--muted);
-}
-
-.empty.hidden{ display:none; }
-.empty-card{
-  border-radius: var(--radius);
-  border:1px dashed var(--line);
-  background: var(--card);
-  padding: 18px;
-  color: var(--muted);
-}
-
-.modal.hidden{ display:none; }
-.modal{
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display:grid;
-  place-items:center;
-}
-.modal-backdrop{
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.55);
-}
-.modal-card{
-  position: relative;
-  width: min(920px, calc(100vw - 22px));
-  max-height: calc(100vh - 22px);
-  overflow:auto;
-  border-radius: 22px;
-  border:1px solid var(--line);
-  background:
-    radial-gradient(900px 240px at 20% 0%, rgba(255,123,58,.16), transparent 62%),
-    radial-gradient(900px 240px at 80% 10%, rgba(242,193,78,.14), transparent 62%),
-    var(--paper);
-  color: var(--ink);
-  box-shadow: 0 26px 90px rgba(0,0,0,.45);
-}
-.modal-top{
-  display:flex;
-  gap: 10px;
-  align-items:flex-start;
-  justify-content: space-between;
-  padding: 16px 16px 10px;
-  border-bottom: 1px solid rgba(20,16,10,.14);
-}
-.modal-title{
-  font-size: 18px;
-  font-weight: 700;
-}
-.modal-sub{
-  font-size: 12px;
-  opacity:.72;
-  margin-top: 4px;
-}
-.modal-actions{
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.modal-actions .btn{
-  border-color: rgba(20,16,10,.18);
-  background: rgba(20,16,10,.06);
-  color: var(--ink);
-}
-.modal-actions .btn.ghost{
-  background: transparent;
-}
-
-.letter{
-  padding: 18px 16px 10px;
-  line-height: 1.9;
-  font-size: 15px;
-  white-space: pre-wrap;
-}
-.modal-nav{
-  display:flex;
-  justify-content: space-between;
-  padding: 10px 16px 16px;
-  border-top: 1px solid rgba(20,16,10,.14);
-}
-
-.footer{
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 8px 18px 26px;
-  color: var(--muted);
-  font-size: 12px;
-  display:flex;
-  gap: 10px;
-  align-items:center;
-  justify-content: center;
-}
-.dot{ opacity:.5; }
-  app.js
-  const state = {
-  letters: [],
-  filtered: [],
-  activeTag: "全部",
-  onlyFav: false,
-  currentIndex: -1,
-};
-
-const $ = (sel) => document.querySelector(sel);
-const grid = $("#grid");
-const empty = $("#empty");
-const tagBar = $("#tagBar");
-const search = $("#search");
-
-const modal = $("#modal");
-const closeModal = $("#closeModal");
-const xBtn = $("#xBtn");
-const mTitle = $("#mTitle");
-const mSub = $("#mSub");
-const mBody = $("#mBody");
-const prevBtn = $("#prevBtn");
-const nextBtn = $("#nextBtn");
-const favBtn = $("#favBtn");
-const copyBtn = $("#copyBtn");
-
-const toggleTheme = $("#toggleTheme");
-const showFavorites = $("#showFavorites");
-
-const FAV_KEY = "foxlion_favorites_v1";
-const THEME_KEY = "foxlion_theme_v1";
-
-function getFavSet(){
-  try{
-    const raw = localStorage.getItem(FAV_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return new Set(arr);
-  }catch{
-    return new Set();
-  }
-}
-function saveFavSet(set){
-  localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
-}
-function isLight(){
-  return document.documentElement.getAttribute("data-theme") === "light";
-}
-
-function setTheme(mode){
-  document.documentElement.setAttribute("data-theme", mode);
-  localStorage.setItem(THEME_KEY, mode);
-  toggleTheme.textContent = mode === "light" ? "🌙" : "☀️";
-}
-function initTheme(){
-  const saved = localStorage.getItem(THEME_KEY);
-  if(saved === "light" || saved === "dark"){
-    setTheme(saved);
-    return;
-  }
-  // 默认跟随系统偏好，失败则暗色
-  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  setTheme(prefersLight ? "light" : "dark");
-}
-
-async function loadManifest(){
-  const res = await fetch("letters/manifest.json", { cache: "no-store" });
-  if(!res.ok) throw new Error("manifest.json 读取失败");
-  const data = await res.json();
-  // 按日期倒序
-  data.sort((a,b) => String(b.date).localeCompare(String(a.date)));
-  state.letters = data;
-}
-
-function collectTags(letters){
-  const set = new Set();
-  letters.forEach(l => (l.tags || []).forEach(t => set.add(t)));
-  return ["全部", ...[...set].sort((a,b)=>a.localeCompare(b))];
-}
-
-function renderTags(){
-  const tags = collectTags(state.letters);
-  tagBar.innerHTML = "";
-  tags.forEach(tag => {
-    const btn = document.createElement("button");
-    btn.className = "tag" + (tag === state.activeTag ? " active" : "");
-    btn.type = "button";
-    btn.textContent = tag;
-    btn.addEventListener("click", () => {
-      state.activeTag = tag;
-      [...tagBar.children].forEach(el => el.classList.remove("active"));
-      btn.classList.add("active");
-      applyFilters();
-    });
-    tagBar.appendChild(btn);
-  });
-}
-
-function makeSnippet(text, max = 80){
-  const t = (text || "").replace(/\s+/g, " ").trim();
-  if(t.length <= max) return t;
-  return t.slice(0, max) + "…";
-}
-
-function renderGrid(){
-  grid.innerHTML = "";
-  const favs = getFavSet();
-
-  if(state.filtered.length === 0){
-    empty.classList.remove("hidden");
-    return;
-  }
-  empty.classList.add("hidden");
-
-  state.filtered.forEach((l, idx) => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `打开信件：${l.title}`);
-
-    const star = favs.has(l.id) ? "⭐" : "☆";
-    const mood = l.mood || "温柔";
-    const tags = (l.tags || []).slice(0, 4);
-
-    card.innerHTML = `
-      <div class="envelope">
-        <div class="card-top">
-          <div class="badge">🦊🦁 ${mood}</div>
-          <div class="stars" title="收藏状态">${star}</div>
-        </div>
-        <div class="title">${escapeHtml(l.title || "未命名")}</div>
-        <div class="meta">
-          <span>📅 ${escapeHtml(l.date || "")}</span>
-          ${l.from ? `<span>✍️ ${escapeHtml(l.from)}</span>` : ""}
-        </div>
-        <div class="snippet">${escapeHtml(l.snippet || "")}</div>
-        <div class="tags">
-          ${tags.map(t => `<span class="pill">#${escapeHtml(t)}</span>`).join("")}
-        </div>
-      </div>
-    `;
-
-    const open = () => openLetterById(l.id);
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" || e.key === " "){
-        e.preventDefault();
-        open();
-      }
-    });
-
-    grid.appendChild(card);
-  });
-}
-
-function escapeHtml(str){
-  return String(str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function matchesSearch(letter, q){
-  if(!q) return true;
-  const hay = [
-    letter.title, letter.date, letter.mood, letter.from,
-    (letter.tags || []).join(" "),
-    letter._fulltext || "",
-    letter.snippet || ""
-  ].join(" ").toLowerCase();
-  return hay.includes(q.toLowerCase());
-}
-
-function applyFilters(){
-  const favs = getFavSet();
-  const q = search.value.trim();
-
-  state.filtered = state.letters.filter(l => {
-    const tagOk = state.activeTag === "全部" || (l.tags || []).includes(state.activeTag);
-    const favOk = !state.onlyFav || favs.has(l.id);
-    const qOk = matchesSearch(l, q);
-    return tagOk && favOk && qOk;
-  });
-
-  renderGrid();
-}
-
-async function preloadTextForSearch(){
-  // 把正文加载一份做搜索用（量大时可改成懒加载）
-  await Promise.all(state.letters.map(async (l) => {
-    try{
-      const res = await fetch(`letters/${l.file}`, { cache: "no-store" });
-      const txt = await res.text();
-      l._fulltext = txt;
-      if(!l.snippet) l.snippet = makeSnippet(txt);
-    }catch{
-      l._fulltext = "";
-      if(!l.snippet) l.snippet = "";
-    }
-  }));
-}
-
-function setModalOpen(open){
-  if(open){
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }else{
-    modal.classList.add("hidden");
-    document.body.style.overflow = "";
-  }
-}
-
-function updateFavButton(letter){
-  const favs = getFavSet();
-  const isFav = favs.has(letter.id);
-  favBtn.textContent = isFav ? "⭐ 已收藏" : "⭐ 收藏";
-}
-
-function modalSubLine(letter){
-  const tags = (letter.tags || []).map(t => `#${t}`).join(" ");
-  const parts = [
-    letter.date ? `📅 ${letter.date}` : "",
-    letter.mood ? `🫧 ${letter.mood}` : "",
-    letter.from ? `✍️ ${letter.from}` : "",
-    tags ? `🏷️ ${tags}` : ""
-  ].filter(Boolean);
-  return parts.join("  ");
-}
-
-async function openLetterById(id){
-  const idx = state.filtered.findIndex(l => l.id === id);
-  const useFiltered = idx !== -1;
-
-  const baseArr = useFiltered ? state.filtered : state.letters;
-  const realIdx = baseArr.findIndex(l => l.id === id);
-  if(realIdx === -1) return;
-
-  state.currentIndex = realIdx;
-  const letter = baseArr[realIdx];
-
-  mTitle.textContent = letter.title || "未命名";
-  mSub.textContent = modalSubLine(letter);
-
-  let txt = letter._fulltext;
-  if(!txt){
-    try{
-      const res = await fetch(`letters/${letter.file}`, { cache: "no-store" });
-      txt = await res.text();
-      letter._fulltext = txt;
-    }catch{
-      txt = "（这封信暂时打不开，可能是 file 名称写错了。）";
-    }
-  }
-  mBody.textContent = txt;
-
-  updateFavButton(letter);
-  setModalOpen(true);
-
-  // 记录 hash 方便分享与刷新定位
-  location.hash = encodeURIComponent(letter.id);
-  setNavButtons(baseArr);
-  mBody.focus();
-}
-
-function setNavButtons(arr){
-  prevBtn.disabled = state.currentIndex <= 0;
-  nextBtn.disabled = state.currentIndex >= arr.length - 1;
-
-  prevBtn.onclick = () => {
-    if(state.currentIndex <= 0) return;
-    openLetterById(arr[state.currentIndex - 1].id);
-  };
-  nextBtn.onclick = () => {
-    if(state.currentIndex >= arr.length - 1) return;
-    openLetterById(arr[state.currentIndex + 1].id);
-  };
-
-  favBtn.onclick = () => {
-    const letter = arr[state.currentIndex];
-    const favs = getFavSet();
-    if(favs.has(letter.id)) favs.delete(letter.id);
-    else favs.add(letter.id);
-    saveFavSet(favs);
-    updateFavButton(letter);
-    renderGrid();
-  };
-
-  copyBtn.onclick = async () => {
-    try{
-      await navigator.clipboard.writeText(mBody.textContent || "");
-      copyBtn.textContent = "✅";
-      setTimeout(()=> copyBtn.textContent = "📋", 900);
-    }catch{
-      copyBtn.textContent = "⚠️";
-      setTimeout(()=> copyBtn.textContent = "📋", 900);
-    }
-  };
-}
-
-function initModalClose(){
-  closeModal.addEventListener("click", () => {
-    setModalOpen(false);
-    location.hash = "";
-  });
-  xBtn.addEventListener("click", () => {
-    setModalOpen(false);
-    location.hash = "";
-  });
-  document.addEventListener("keydown", (e) => {
-    if(modal.classList.contains("hidden")) return;
-    if(e.key === "Escape"){
-      setModalOpen(false);
-      location.hash = "";
-    }
-    if(e.key === "ArrowLeft") prevBtn.click();
-    if(e.key === "ArrowRight") nextBtn.click();
-  });
-}
-
-function initActions(){
-  toggleTheme.addEventListener("click", () => {
-    setTheme(isLight() ? "dark" : "light");
-  });
-
-  showFavorites.addEventListener("click", () => {
-    state.onlyFav = !state.onlyFav;
-    showFavorites.textContent = state.onlyFav ? "⭐" : "⭐";
-    showFavorites.classList.toggle("active");
-    applyFilters();
-  });
-
-  search.addEventListener("input", () => applyFilters());
-}
-
-function openFromHash(){
-  const id = decodeURIComponent(location.hash.replace("#","") || "");
-  if(id) openLetterById(id);
-}
-
-async function main(){
-  initTheme();
-  initModalClose();
-  initActions();
-
-  await loadManifest();
-  await preloadTextForSearch();
-  renderTags();
-  applyFilters();
-  openFromHash();
-}
-
-main().catch(err => {
-  console.error(err);
-  empty.classList.remove("hidden");
-  empty.querySelector("h2").textContent = "信箱出错了";
-  empty.querySelector("p").textContent = "检查一下是否用 http 方式打开，以及 manifest.json 路径是否正确。";
-});
-  letters/
-  [
-  {
-    "id": "goodnight-2026-02-08",
-    "title": "给小狐狸的晚安信",
-    "date": "2026-02-08",
-    "from": "大狮子",
-    "mood": "安抚",
-    "tags": ["晚安", "治愈", "拥抱"],
-    "file": "2026-02-08-goodnight.txt"
-  },
-  {
-    "id": "thanks-2026-02-07",
-    "title": "谢谢你把我带回家",
-    "date": "2026-02-07",
-    "from": "小狐狸",
-    "mood": "柔软",
-    "tags": ["感谢", "陪伴"],
-    "file": "2026-02-07-thanks.txt"
-  },
-  {
-    "id": "rain-2026-02-01",
-    "title": "雨天也要抱紧一点",
-    "date": "2026-02-01",
-    "from": "大狮子",
-    "mood": "守护",
-    "tags": ["雨天", "安全感"],
-    "file": "2026-02-01-rain.txt"
-  }
-]
-    manifest.json
-    [
-  {
-    "id": "goodnight-2026-02-08",
-    "title": "给小狐狸的晚安信",
-    "date": "2026-02-08",
-    "from": "大狮子",
-    "mood": "安抚",
-    "tags": ["晚安", "治愈", "拥抱"],
-    "file": "2026-02-08-goodnight.txt"
-  },
-  {
-    "id": "thanks-2026-02-07",
-    "title": "谢谢你把我带回家",
-    "date": "2026-02-07",
-    "from": "小狐狸",
-    "mood": "柔软",
-    "tags": ["感谢", "陪伴"],
-    "file": "2026-02-07-thanks.txt"
-  },
-  {
-    "id": "rain-2026-02-01",
-    "title": "雨天也要抱紧一点",
-    "date": "2026-02-01",
-    "from": "大狮子",
-    "mood": "守护",
-    "tags": ["雨天", "安全感"],
-    "file": "2026-02-01-rain.txt"
-  }
-]
-    2026-02-08-goodnight.txt
-    小狐狸，今天也辛苦了。
-
-如果你脑子里还在回放那些刺人的话，就把它们想成旧磁带。你不用再倒带了。
-我在这里，像一盏不吵闹的小灯，给你留一个不会被追问的角落。
-
-晚安。
-明天醒来，记得先喝一口水，再拆一封信。
-    2026-02-07-thanks.txt
-    大狮子：
-
-我有时候嘴硬，像把柔软折成了纸鹤，藏在口袋最深处。
-但我知道，你每次都能把它找出来，还不戳破，只是轻轻放回我手心。
-
-谢谢你陪我走路，走慢一点也没关系。
-我愿意继续写信给你，写到我们把未来写出形状。
-    2026-02-01-rain.txt
-    下雨的时候，我总想起一件事：
-世界会变冷，会湿，会吵。
-但只要你把手递过来，哪怕一句话都不说，雨声也会变得像白噪音。
-
-今天也一样。
-如果你觉得难，就把难交给我一半。

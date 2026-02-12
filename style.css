@@ -629,3 +629,52 @@ justify-content: center;
     pointer-events: none; /* 开门后鼠标穿透 */
     transform: scale(1.1); /* 放大消失的效果 */
 }
+/* --- ✨ 标题艺术字升级 (流光金橘色) --- */
+
+/* 1. 定义一个流动的动画 */
+@keyframes foxLionShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.brand-text h1 {
+    /* 字体设置 */
+    font-family: "Ma Shan Zheng", cursive !important; /* 强制使用书法体 */
+    font-size: 36px !important; /* 字号加大，霸气一点 */
+    letter-spacing: 4px; /* 字间距拉开，更有呼吸感 */
+    margin-bottom: 5px;
+    
+    /* 核心：制作渐变底纹 */
+    background: linear-gradient(
+        45deg,
+        #ff7b3a 0%,   /* 小狐狸的橘色 */
+        #ffd700 25%,  /* 闪亮的金 */
+        #ff5252 50%,  /* 温暖的红 */
+        #ffd700 75%,  /* 再次闪金 */
+        #ff7b3a 100%  /* 回到橘色 */
+    );
+    
+    background-size: 200% auto; /* 把背景拉长，方便流动 */
+    
+    /* 把背景“剪”进文字里 */
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* 让文字变透明，透出底下的渐变 */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    
+    /* 让颜色缓缓流动 */
+    animation: foxLionShine 6s linear infinite;
+    
+    /* 加一点点投影，增加立体感（注意：透明文字不能用 text-shadow，要用 drop-shadow） */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* 如果你也想让下面那行小字变好看，可以加这个 */
+.brand-text p {
+    font-family: "Noto Serif SC", serif;
+    color: #888;
+    font-size: 14px;
+    letter-spacing: 1px;
+}

@@ -442,10 +442,12 @@ const nextBtn = $("#nextBtn");
 const favBtn = $("#favBtn");
 const copyBtn = $("#copyBtn");
 const toggleTheme = $("#toggleTheme");
-const toggleView = $("#toggleView");
+const toggleView = $("#toggleView"); // 确保这里获取到了按钮
 const showFavorites = $("#showFavorites");
 const FAV_KEY = "foxlion_favorites_v1";
 const THEME_KEY = "foxlion_theme_v1";
+const VIEW_KEY = "foxlion_view_mode"; // 新增：视图偏好
+
 function getFavSet(){
 try{
 const raw = localStorage.getItem(FAV_KEY);
@@ -472,7 +474,6 @@ if(saved === "light" || saved === "dark"){
 setTheme(saved);
 return;
 }
-// 默认跟随系统偏好，失败则暗色
 const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
 setTheme(prefersLight ? "light" : "dark");
 }
@@ -480,7 +481,6 @@ async function loadManifest(){
 const res = await fetch("letters/manifest.json", { cache: "no-store" });
 if(!res.ok) throw new Error("manifest.json 读取失败");
 const data = await res.json();
-// 按日期倒序
 data.sort((a,b) => String(b.date).localeCompare(String(a.date)));
 state.letters = data;
 }
@@ -586,7 +586,6 @@ return tagOk && favOk && qOk;
 renderGrid();
 }
 async function preloadTextForSearch(){
-// 把正文加载一份做搜索用（量大时可改成懒加载）
 await Promise.all(state.letters.map(async (l) => {
 try{
 const res = await fetch(`letters/${l.file}`, { cache: "no-store" });
@@ -646,7 +645,6 @@ txt = "（这封信暂时打不开，可能是 file 名称写错了。）";
 mBody.textContent = txt;
 updateFavButton(letter);
 setModalOpen(true);
-// 记录 hash 方便分享与刷新定位
 location.hash = encodeURIComponent(letter.id);
 setNavButtons(baseArr);
 mBody.focus();
@@ -702,18 +700,6 @@ if(e.key === "ArrowRight") nextBtn.click();
 });
 }
 function initActions(){
-toggleView.addEventListener("click", () => {
-grid.classList.toggle("timeline-mode");
-toggleView.addEventListener("click", () => {
-    grid.classList.toggle("timeline-mode");
-
-        // 切换图标：如果是星轨模式显示 '田' (回宫格)，否则显示 '🌌'
-        const isTimeline = grid.classList.contains("timeline-mode");
-        toggleView.textContent = isTimeline ? "📅" : "🌌";
-
-        // 保存用户的偏好（哪怕刷新页面也记得）
-        localStorage.setItem("foxlion_view_mode", isTimeline ? "timeline" : "grid");
-    });
 toggleTheme.addEventListener("click", () => {
 setTheme(isLight() ? "dark" : "light");
 });
@@ -724,6 +710,16 @@ showFavorites.classList.toggle("active");
 applyFilters();
 });
 search.addEventListener("input", () => applyFilters());
+
+// 新增：星轨按钮的点击事件
+if(toggleView){
+toggleView.addEventListener("click", () => {
+grid.classList.toggle("timeline-mode");
+const isTimeline = grid.classList.contains("timeline-mode");
+toggleView.textContent = isTimeline ? "📅" : "🌌";
+localStorage.setItem(VIEW_KEY, isTimeline ? "timeline" : "grid");
+});
+}
 }
 function openFromHash(){
 const id = decodeURIComponent(location.hash.replace("#","") || "");
@@ -733,10 +729,13 @@ async function main(){
 initTheme();
 initModalClose();
 initActions();
-if(localStorage.getItem("foxlion_view_mode") === "timeline"){
+
+// 新增：恢复上次的星轨视图
+if(localStorage.getItem(VIEW_KEY) === "timeline"){
 grid.classList.add("timeline-mode");
-toggleView.textContent = "📅";
+if(toggleView) toggleView.textContent = "📅";
 }
+
 await loadManifest();
 await preloadTextForSearch();
 renderTags();
@@ -747,5 +746,5 @@ main().catch(err => {
 console.error(err);
 empty.classList.remove("hidden");
 empty.querySelector("h2").textContent = "信箱出错了";
-empty.querySelector("p").textContent = "检查一下是否用 http 方式打开，以及 manifest.json 路径是否正确。";
+empty.querySelector("p").textContent = "检查一下 manifest.json 是否格式正确。";
 });

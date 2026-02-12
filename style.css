@@ -686,7 +686,7 @@ justify-content: center;
     100% { background-position: 200% 50%; }
 }
 
-/* 2. 把“小狐狸与大狮子的安全屋”几个字变身 */
+/* 2. 把“小狐狸•大狮子安全屋”几个字变身 */
 .door-card h2 {
     /* 字体：用行云流水的书法体 */
     font-family: "Ma Shan Zheng", cursive !important;

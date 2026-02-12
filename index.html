@@ -3,99 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>白泽写给小狐狸的信</title>
+    <title>小狐狸的安全屋 - 寄给阿予的信</title>
     <style>
         :root {
-            --bg: #0f1216;
-            --card: rgba(255,255,255,.06);
-            --card2: rgba(255,255,255,.09);
-            --text: rgba(255,255,255,.92);
-            --muted: rgba(255,255,255,.68);
-            --line: rgba(255,255,255,.14);
-            --paper: #f6f0e7;
-            --ink: #1d1b18;
-            --fox: #ff7b3a;
-            --lion: #f2c14e;
-            --mint: #86efac;
-            --shadow: 0 16px 50px rgba(0,0,0,.45);
-            --radius: 18px;
-            --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            --bg-color: #fdf5f5;
+            --envelope-color: #f2a6a6;
+            --envelope-dark: #e88d8d;
+            --paper-color: #ffffff;
+            --text-color: #5a5a5a;
         }
 
         body {
             margin: 0;
-            font-family: var(--font);
-            background: radial-gradient(900px 700px at 15% 10%, rgba(255,123,58,.22), transparent 55%),
-                        radial-gradient(900px 700px at 85% 20%, rgba(242,193,78,.22), transparent 55%),
-                        radial-gradient(1200px 900px at 50% 100%, rgba(134,239,172,.1), transparent 55%),
-                        var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        .container { max-width: 980px; margin: 0 auto; padding: 20px; }
-        .topbar { position: sticky; top: 0; background: rgba(15,18,22,.8); backdrop-filter: blur(14px); padding: 20px; border-bottom: 1px solid var(--line); z-index: 100; }
-        .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin-top: 20px; transition: 0.3s; }
-        .card:hover { border-color: var(--fox); transform: translateY(-2px); }
-        .letter-content { background: var(--paper); color: var(--ink); padding: 40px; border-radius: 12px; line-height: 1.8; white-space: pre-wrap; margin-top: 20px; }
-        .tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: var(--card2); font-size: 12px; margin-right: 8px; border: 1px solid var(--line); }
-        h1 { font-size: 20px; margin: 0; }
-        .footer { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+        /* 信封容器 */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background-color: var(--envelope-dark);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        /* 信封盖子 */
+        .envelope-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 3;
+            border-top: 110px solid var(--envelope-color);
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            transform-origin: top;
+            transition: transform 0.4s 0.4s;
+        }
+
+        /* 信封主体 */
+        .envelope-wrapper::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            width: 0;
+            height: 0;
+            border-top: 100px solid transparent;
+            border-right: 150px solid var(--envelope-color);
+            border-bottom: 100px solid var(--envelope-color);
+            border-left: 150px solid var(--envelope-color);
+        }
+
+        /* 信纸 */
+        .letter {
+            position: absolute;
+            left: 10%;
+            bottom: 0;
+            width: 80%;
+            height: 80%;
+            background: var(--paper-color);
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.5s ease-in-out;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .letter p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* 激活状态：点击展开 */
+        .envelope-wrapper.open::before {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .envelope-wrapper.open .letter {
+            transform: translateY(-120px);
+            height: 150%; /* 展开后信纸变长 */
+            z-index: 4;
+        }
+
+        .tip {
+            position: absolute;
+            bottom: 50px;
+            color: #d88;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
-<div class="topbar">
-    <div class="container">
-        <h1>🦊🦁 把信留给未来的你们</h1>
+    <div class="envelope-wrapper" onclick="this.classList.toggle('open')">
+        <div class="letter">
+            <p>亲爱的阿予：</p>
+            <p>这是在安全屋里为你折叠的一封信。无论世界如何变化，这里永远是你可以停靠的地方...</p>
+            <p style="text-align: right; margin-top: 20px;">—— 小狐狸</p>
+        </div>
     </div>
-</div>
 
-<div class="container" id="app">
-    <div id="loading-tip" class="card">
-        <h3>📫 正在从仓库取信...</h3>
-        <p>如果长时间不显示，请检查 letters/manifest.json 是否填写正确。</p>
-    </div>
-    <div id="letter-list"></div>
-</div>
-
-<div class="footer">
-    <span>🦊🦁 · 把信留给未来的你们</span>
-</div>
-
-<script>
-    // 这段脚本会自动去读取你的 manifest.json
-    async function loadLetters() {
-        try {
-            const response = await fetch('letters/manifest.json');
-            const data = await response.json();
-            const listDiv = document.getElementById('letter-list');
-            const tipDiv = document.getElementById('loading-tip');
-            
-            if (data.length > 0) {
-                tipDiv.style.display = 'none';
-                for (const item of data) {
-                    // 读取具体的信件内容
-                    const res = await fetch(item.content);
-                    const text = await res.text();
-                    
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div style="color:var(--fox); font-weight:bold; margin-bottom:10px;">${item.date}</div>
-                        <h2 style="margin:0 0 15px 0;">${item.title}</h2>
-                        <div>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                        <div class="letter-content">${text}</div>
-                    `;
-                    listDiv.appendChild(card);
-                }
-            }
-        } catch (e) {
-            console.error("加载信件失败:", e);
-        }
-    }
-    loadLetters();
-</script>
+    <div class="tip">点击信封开启/折叠</div>
 
 </body>
 </html>

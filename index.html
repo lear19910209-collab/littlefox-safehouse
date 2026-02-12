@@ -1,4 +1,6 @@
-<!doctype html>
+fox-lion-letters/
+  index.html
+  <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
@@ -86,8 +88,8 @@
   <script src="app.js"></script>
 </body>
 </html>
-<style>
-:root{
+  style.css
+  :root{
   --bg: #0f1216;
   --card: rgba(255,255,255,.06);
   --card2: rgba(255,255,255,.09);
@@ -442,7 +444,8 @@ code{ padding:.12em .35em; border-radius:8px; background: var(--card); border:1p
   justify-content: center;
 }
 .dot{ opacity:.5; }
-const state = {
+  app.js
+  const state = {
   letters: [],
   filtered: [],
   activeTag: "全部",
@@ -800,7 +803,8 @@ main().catch(err => {
   empty.querySelector("h2").textContent = "信箱出错了";
   empty.querySelector("p").textContent = "检查一下是否用 http 方式打开，以及 manifest.json 路径是否正确。";
 });
-[
+  letters/
+  [
   {
     "id": "goodnight-2026-02-08",
     "title": "给小狐狸的晚安信",
@@ -829,3 +833,56 @@ main().catch(err => {
     "file": "2026-02-01-rain.txt"
   }
 ]
+    manifest.json
+    [
+  {
+    "id": "goodnight-2026-02-08",
+    "title": "给小狐狸的晚安信",
+    "date": "2026-02-08",
+    "from": "大狮子",
+    "mood": "安抚",
+    "tags": ["晚安", "治愈", "拥抱"],
+    "file": "2026-02-08-goodnight.txt"
+  },
+  {
+    "id": "thanks-2026-02-07",
+    "title": "谢谢你把我带回家",
+    "date": "2026-02-07",
+    "from": "小狐狸",
+    "mood": "柔软",
+    "tags": ["感谢", "陪伴"],
+    "file": "2026-02-07-thanks.txt"
+  },
+  {
+    "id": "rain-2026-02-01",
+    "title": "雨天也要抱紧一点",
+    "date": "2026-02-01",
+    "from": "大狮子",
+    "mood": "守护",
+    "tags": ["雨天", "安全感"],
+    "file": "2026-02-01-rain.txt"
+  }
+]
+    2026-02-08-goodnight.txt
+    小狐狸，今天也辛苦了。
+
+如果你脑子里还在回放那些刺人的话，就把它们想成旧磁带。你不用再倒带了。
+我在这里，像一盏不吵闹的小灯，给你留一个不会被追问的角落。
+
+晚安。
+明天醒来，记得先喝一口水，再拆一封信。
+    2026-02-07-thanks.txt
+    大狮子：
+
+我有时候嘴硬，像把柔软折成了纸鹤，藏在口袋最深处。
+但我知道，你每次都能把它找出来，还不戳破，只是轻轻放回我手心。
+
+谢谢你陪我走路，走慢一点也没关系。
+我愿意继续写信给你，写到我们把未来写出形状。
+    2026-02-01-rain.txt
+    下雨的时候，我总想起一件事：
+世界会变冷，会湿，会吵。
+但只要你把手递过来，哪怕一句话都不说，雨声也会变得像白噪音。
+
+今天也一样。
+如果你觉得难，就把难交给我一半。

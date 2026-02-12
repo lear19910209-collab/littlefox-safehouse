@@ -442,6 +442,7 @@ const nextBtn = $("#nextBtn");
 const favBtn = $("#favBtn");
 const copyBtn = $("#copyBtn");
 const toggleTheme = $("#toggleTheme");
+const toggleView = $("#toggleView");
 const showFavorites = $("#showFavorites");
 const FAV_KEY = "foxlion_favorites_v1";
 const THEME_KEY = "foxlion_theme_v1";
@@ -701,6 +702,18 @@ if(e.key === "ArrowRight") nextBtn.click();
 });
 }
 function initActions(){
+toggleView.addEventListener("click", () => {
+grid.classList.toggle("timeline-mode");
+toggleView.addEventListener("click", () => {
+        grid.classList.toggle("timeline-mode");
+
+        // 切换图标：如果是星轨模式显示 '田' (回宫格)，否则显示 '🌌'
+        const isTimeline = grid.classList.contains("timeline-mode");
+        toggleView.textContent = isTimeline ? "📅" : "🌌";
+
+        // 保存用户的偏好（哪怕刷新页面也记得）
+        localStorage.setItem("foxlion_view_mode", isTimeline ? "timeline" : "grid");
+    });
 toggleTheme.addEventListener("click", () => {
 setTheme(isLight() ? "dark" : "light");
 });
@@ -720,6 +733,10 @@ async function main(){
 initTheme();
 initModalClose();
 initActions();
+if(localStorage.getItem("foxlion_view_mode") === "timeline"){
+grid.classList.add("timeline-mode");
+toggleView.textContent = "📅";
+}
 await loadManifest();
 await preloadTextForSearch();
 renderTags();

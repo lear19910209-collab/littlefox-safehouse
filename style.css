@@ -678,3 +678,65 @@ justify-content: center;
     font-size: 14px;
     letter-spacing: 1px;
 }
+/* --- 🚪 封面密码门：流光艺术字特效 --- */
+
+/* 1. 确保动画定义存在（如果你之前没加过的话） */
+@keyframes foxLionShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* 2. 把“小狐狸与大狮子的安全屋”几个字变身 */
+.door-card h2 {
+    /* 字体：用行云流水的书法体 */
+    font-family: "Ma Shan Zheng", cursive !important;
+    
+    /* 大小：放大，更有气势 */
+    font-size: 34px !important;
+    letter-spacing: 3px;
+    margin-bottom: 20px !important;
+    
+    /* 颜色：流动的金橘色渐变 */
+    background: linear-gradient(
+        45deg,
+        #ff7b3a 0%,   /* 橘色 */
+        #ffd700 25%,  /* 金色 */
+        #ff5252 50%,  /* 绯红 */
+        #ffd700 75%,  /* 金色 */
+        #ff7b3a 100%  /* 回归橘色 */
+    );
+    background-size: 200% auto;
+    
+    /* 把背景“剪”进文字里 */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    
+    /* 让光效动起来 */
+    animation: foxLionShine 4s linear infinite;
+    
+    /* 加一点投影，防止在浅色背景看不清 */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+/* 3. 顺手把输入框也美化一下，不然配不上这个标题 */
+#door-key {
+    background: rgba(255, 255, 255, 0.9) !important; /* 纯白背景稍微透一点 */
+    border: 2px solid rgba(255, 123, 58, 0.3) !important; /* 橘色边框 */
+    color: #5d4037 !important; /* 深棕色文字 */
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+/* 输入框获得焦点时发光 */
+#door-key:focus {
+    border-color: #ff7b3a !important;
+    box-shadow: 0 0 10px rgba(255, 123, 58, 0.4);
+}
+
+/* 4. 按钮也变成渐变色 */
+#open-btn {
+    background: linear-gradient(135deg, #ff7b3a, #ff5252) !important;
+    box-shadow: 0 4px 10px rgba(255, 82, 82, 0.3);
+}

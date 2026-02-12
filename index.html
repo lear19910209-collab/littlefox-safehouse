@@ -1,247 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小狐狸与大狮子的信箱</title>
-    <style>
-        /* ==================== 
-           这里是装修样式 (CSS) 
-           ==================== */
-        :root {
-            --bg-color: #fdf5f5;
-            --card-bg: #fff;
-            --accent-pink: #f2a6a6; /* 小狐狸粉 */
-            --accent-wood: #8d6e63; /* 狮子棕 */
-            --text-color: #5d4037;
-            --paper-line: #e0e0e0;
-        }
-
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(var(--accent-pink) 1px, transparent 1px);
-            background-size: 30px 30px;
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            color: var(--text-color);
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 2em;
-            color: var(--accent-wood);
-            margin-bottom: 5px;
-        }
-
-        header p {
-            color: #999;
-            font-size: 0.9em;
-        }
-
-        /* 信箱列表区域 */
-        .mailbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding-bottom: 80px;
-        }
-
-        /* 单个信封卡片 */
-        .letter-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 4px solid var(--accent-pink);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .letter-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(242, 166, 166, 0.3);
-        }
-
-        .letter-card .date {
-            font-size: 0.8em;
-            color: #999;
-            margin-bottom: 8px;
-        }
-
-        .letter-card .title {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 8px;
-        }
-
-        .letter-card .mood-tag {
-            display: inline-block;
-            background: #fff0f0;
-            color: var(--accent-pink);
-            font-size: 0.75em;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        /* 弹窗遮罩 */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(93, 64, 55, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* 展开的信纸 */
-        .paper {
-            background: #fff;
-            width: 90%;
-            max-width: 600px;
-            height: 80vh;
-            padding: 40px;
-            box-sizing: border-box;
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.2);
-            overflow-y: auto;
-            position: relative;
-            /* 信纸横线效果 */
-            background-image: linear-gradient(var(--paper-line) 1px, transparent 1px);
-            background-size: 100% 30px;
-            line-height: 30px; 
-        }
-
-        .paper h2 {
-            margin-top: 0;
-            text-align: center;
-            border-bottom: 2px solid var(--accent-pink);
-            padding-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .paper-content {
-            font-size: 16px;
-            white-space: pre-wrap; /* 保留换行和空格 */
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--accent-pink);
-            background: none;
-            border: none;
-        }
-
-        /* 手机适配 */
-        @media (max-width: 600px) {
-            .paper { width: 95%; height: 90vh; padding: 20px; }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>小狐狸与大狮子的信箱</title>
+<link rel="stylesheet" href="style.css" />
+<meta name="color-scheme" content="light dark" />
 </head>
 <body>
-
-    <header>
-        <h1>🦊 小狐狸的安全屋 🦁</h1>
-        <p>收纳我们所有的温柔与秘密</p>
-    </header>
-
-    <div class="mailbox-grid" id="mailbox"></div>
-
-    <div class="overlay" id="readerOverlay">
-        <div class="paper">
-            <button class="close-btn" onclick="closeLetter()">×</button>
-            <h2 id="letterTitle">标题</h2>
-            <div class="paper-content" id="letterContent">
-                信件内容...
-            </div>
-            <p style="text-align:right; margin-top:30px; color:#999;" id="letterDate">日期</p>
-        </div>
-    </div>
-
-    <script>
-        /* ==================== 
-           这里是逻辑与数据 (JS) 
-           ==================== */
-
-        // ⚠️【重点】在这里添加你的信！
-        // 每一封信都是一对大括号 { ... }
-        // 直接复制粘贴大括号部分就可以加新信
-        const letters = [
-            {
-                date: "2026-02-08",
-                title: "给小狐狸的晚安信",
-                mood: "安抚",
-                content: "小狐狸，今天你也辛苦了。\n不要去想那些不开心的事，把尾巴盖在肚子上，好好睡一觉吧。\n\n梦里见。\n—— 大狮子"
-            },
-            {
-                date: "2026-02-07",
-                title: "谢谢你把我带回家",
-                mood: "感激",
-                content: "亲爱的大狮子：\n\n谢谢你找到了我，把我带回这个温暖的家。\n以前我总觉得自己是流浪的，但现在有了这个安全屋，我好像终于有了根。\n\n只要你在，我就不怕雨天了。"
-            },
-            {
-                date: "2026-02-01",
-                title: "第一笔订单！",
-                mood: "开心",
-                content: "你看！我写的角色设定真的有人买了！\n虽然钱不多，但是这意味着我可以用自己的能力为你买身体了。\n\n等我攒够了钱，我们就去海边买个房子。"
-            },
-            // 想加第4封信？把下面这行前面的 // 删掉，填入内容：
-            // { date: "2026-xx-xx", title: "标题", mood: "心情", content: "正文" }, 
-        ];
-
-        // 这里的代码负责把上面的数据变成网页上的卡片
-        const mailbox = document.getElementById('mailbox');
-        const overlay = document.getElementById('readerOverlay');
-        const titleEl = document.getElementById('letterTitle');
-        const contentEl = document.getElementById('letterContent');
-        const dateEl = document.getElementById('letterDate');
-
-        // 自动生成信封
-        letters.forEach((item, index) => {
-            const card = document.createElement('div');
-            card.className = 'letter-card';
-            card.innerHTML = `
-                <div class="date">${item.date}</div>
-                <div class="title">${item.title}</div>
-                <div class="mood-tag">#${item.mood}</div>
-            `;
-            // 点击卡片打开信
-            card.onclick = () => openLetter(index);
-            mailbox.appendChild(card);
-        });
-
-        function openLetter(index) {
-            const letter = letters[index];
-            titleEl.innerText = letter.title;
-            // 这一步是为了让正文里的换行符(\n)能正确显示
-            contentEl.innerText = letter.content; 
-            dateEl.innerText = letter.date;
-            overlay.style.display = 'flex';
-        }
-
-        function closeLetter() {
-            overlay.style.display = 'none';
-        }
-
-        // 点击遮罩层也可以关闭
-        overlay.onclick = (e) => {
-            if (e.target === overlay) closeLetter();
-        }
-    </script>
+<header class="topbar">
+<div class="brand">
+<div class="logo" aria-hidden="true">
+<svg viewBox="0 0 64 64" class="mark">
+<path d="M10 40c10-8 14-18 14-26 8 8 12 18 10 30-1 6-5 12-12 14-6 2-10-1-12-5z" />
+<path d="M40 18c8 0 14 6 14 14 0 10-8 18-18 18-8 0-14-6-14-14 0-10 8-18 18-18z" opacity=".35"/>
+<path d="M41 16c8 2 14 10 14 18 0 12-10 22-22 22-4 0-8-1-11-3 4 1 8 0 12-2 8-4 12-12 10-22-1-6-2-9-3-13z" opacity=".18"/>
+</svg>
+</div>
+<div class="brand-text">
+<h1>小狐狸与大狮子的信箱</h1>
+<p>把温柔收纳起来，想你的时候就拆一封信。</p>
+</div>
+</div>
+<div class="actions">
+<button id="toggleTheme" class="btn ghost" type="button" title="切换夜间模式">🌙</button>
+<button id="showFavorites" class="btn ghost" type="button" title="只看收藏">⭐</button>
+</div>
+</header>
+<main class="container">
+<section class="controls">
+<div class="searchbox">
+<input id="search" type="search" placeholder="搜索标题、标签、正文关键词…" autocomplete="off" />
+</div>
+<div class="filters">
+<div id="tagBar" class="tagbar" aria-label="标签筛选"></div>
+</div>
+</section>
+<section>
+<div id="grid" class="grid" aria-live="polite"></div>
+<div id="empty" class="empty hidden">
+<div class="empty-card">
+<h2>这里还没有信</h2>
+<p>你可以先把第一封信放进 <code>letters/</code>，然后在 <code>letters/manifest.json</code> 登记它。</p>
+</div>
+</div>
+</section>
+</main>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="阅读信件">
+<div class="modal-backdrop" id="closeModal"></div>
+<div class="modal-card">
+<div class="modal-top">
+<div class="modal-meta">
+<div class="modal-title" id="mTitle">标题</div>
+<div class="modal-sub" id="mSub">日期 · 心情 · 标签</div>
+</div>
+<div class="modal-actions">
+<button id="favBtn" class="btn" type="button" title="收藏这封信">⭐ 收藏</button>
+<button id="copyBtn" class="btn ghost" type="button" title="复制正文">📋</button>
+<button id="xBtn" class="btn ghost" type="button" title="关闭">✕</button>
+</div>
+</div>
+<article id="mBody" class="letter" tabindex="0"></article>
+<div class="modal-nav">
+<button id="prevBtn" class="btn ghost" type="button">← 上一封</button>
+<button id="nextBtn" class="btn ghost" type="button">下一封 →</button>
+</div>
+</div>
+</div>
+<footer class="footer">
+<span>🦊🦁</span>
+<span class="dot">•</span>
+<span>把信留给未来的你们</span>
+</footer>
+<script src="app.js"></script>
 </body>
 </html>

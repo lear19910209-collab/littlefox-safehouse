@@ -419,3 +419,109 @@ align-items:center;
 justify-content: center;
 }
 .dot{ opacity:.5; }
+/* --- 🌌 星轨时间轴模式 (Timeline View) --- */
+
+/* 1. 容器变成垂直布局 */
+.grid.timeline-mode {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 20px 0;
+    gap: 40px; /* 信件之间的距离 */
+}
+
+/* 2. 画出中间那条发光的线（星轨） */
+.grid.timeline-mode::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(to bottom, 
+        transparent, 
+        var(--fox) 20%, 
+        var(--lion) 80%, 
+        transparent
+    );
+    transform: translateX(-50%);
+    box-shadow: 0 0 15px rgba(255, 123, 58, 0.4); /* 柔和的光晕 */
+    z-index: 0;
+}
+
+/* 3. 让信件卡片变成一半宽度，错落排列 */
+.grid.timeline-mode .card {
+    width: 45%;
+    position: relative;
+    z-index: 1;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05); /* 更通透的玻璃感 */
+    backdrop-filter: blur(10px);
+}
+
+/* 偶数信件：在右边 */
+.grid.timeline-mode .card:nth-child(even) {
+    align-self: flex-end; /* 靠右 */
+    text-align: left;
+}
+
+/* 奇数信件：在左边 */
+.grid.timeline-mode .card:nth-child(odd) {
+    align-self: flex-start; /* 靠左 */
+    text-align: right; /* 文字靠右，营造对话感 */
+}
+
+/* 奇数信件内部布局反转（为了美观） */
+.grid.timeline-mode .card:nth-child(odd) .card-top,
+.grid.timeline-mode .card:nth-child(odd) .meta,
+.grid.timeline-mode .card:nth-child(odd) .tags {
+    flex-direction: row-reverse;
+}
+
+/* 4. 连接线上的“星星”节点 */
+.grid.timeline-mode .card::after {
+    content: "✦"; /* 星星符号 */
+    position: absolute;
+    top: 20px;
+    font-size: 20px;
+    color: var(--lion);
+    text-shadow: 0 0 10px var(--fox);
+    background: var(--bg); /* 遮挡住中间的线 */
+    padding: 5px;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+/* 右边的卡片，星星在左边 */
+.grid.timeline-mode .card:nth-child(even)::after {
+    left: -12.5%; /* 调整星星的位置以对齐中线 */
+}
+
+/* 左边的卡片，星星在右边 */
+.grid.timeline-mode .card:nth-child(odd)::after {
+    right: -12.5%;
+}
+
+/* 5. 手机端的适配（手机屏幕窄，不做左右交替，改成单侧时间轴） */
+@media (max-width: 768px) {
+    .grid.timeline-mode::before {
+        left: 20px; /* 线移到左侧 */
+    }
+    .grid.timeline-mode .card {
+        width: 85%; /* 卡片变宽 */
+        align-self: flex-end !important; /* 强制全部靠右 */
+        text-align: left !important;
+        margin-left: auto;
+    }
+    /* 修正手机端内部布局 */
+    .grid.timeline-mode .card:nth-child(odd) .card-top,
+    .grid.timeline-mode .card:nth-child(odd) .meta,
+    .grid.timeline-mode .card:nth-child(odd) .tags {
+        flex-direction: row;
+    }
+    /* 修正手机端星星位置 */
+    .grid.timeline-mode .card::after {
+        left: -16%; /* 星星全部在左侧 */
+        right: auto !important;
+    }
+}

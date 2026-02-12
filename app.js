@@ -748,3 +748,52 @@ empty.classList.remove("hidden");
 empty.querySelector("h2").textContent = "信箱出错了";
 empty.querySelector("p").textContent = "检查一下 manifest.json 是否格式正确。";
 });
+/* --- 🔐 密码门逻辑 --- */
+(function initDoor() {
+    const door = document.getElementById('safe-door');
+    const input = document.getElementById('door-key');
+    const btn = document.getElementById('open-btn');
+    const msg = document.getElementById('error-msg');
+
+    // 🔑 这里设置你的密码！建议用数字或英文
+    const SECRET_KEY = "19960810"; 
+
+    // 检查是否已经开过锁了（避免刷新页面又要输密码）
+    if (sessionStorage.getItem('safe_unlocked') === 'true') {
+        door.style.display = 'none'; // 直接隐藏，不显示动画
+        return;
+    }
+
+    function checkPassword() {
+        if (input.value === SECRET_KEY) {
+            // 密码正确：开门
+            door.classList.add('unlocked');
+            // 记录状态：浏览器关闭前都不用再输密码
+            sessionStorage.setItem('safe_unlocked', 'true');
+            
+            // 0.8秒动画结束后，彻底移除元素
+            setTimeout(() => {
+                door.style.display = 'none';
+            }, 800);
+        } else {
+            // 密码错误
+            msg.classList.remove('hidden');
+            input.value = ""; // 清空输入框
+            input.focus();
+            
+            // 晃动效果
+            door.querySelector('.door-card').style.transform = 'translateX(10px)';
+            setTimeout(() => {
+                door.querySelector('.door-card').style.transform = 'translateX(0)';
+            }, 100);
+        }
+    }
+
+    // 点击按钮开门
+    btn.addEventListener('click', checkPassword);
+
+    // 按回车键也能开门
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkPassword();
+    });
+})();

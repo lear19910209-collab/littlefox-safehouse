@@ -87,21 +87,26 @@
 
 
 
-:root{
---bg: #0f1216;
---card: rgba(255,255,255,.06);
---card2: rgba(255,255,255,.09);
---text: rgba(255,255,255,.92);
---muted: rgba(255,255,255,.68);
---line: rgba(255,255,255,.14);
---paper: #f6f0e7;
---ink: #1d1b18;
---fox: #ff7b3a;
---lion: #f2c14e;
---mint: #86efac;
---shadow: 0 16px 50px rgba(0,0,0,.45);
---radius: 18px;
---font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", Arial;
+:root {
+    --bg: #0f1216;
+    --card: rgba(255, 255, 255, .06);
+    --card2: rgba(255, 255, 255, .09);
+    --text: rgba(255, 255, 255, .92);
+    --muted: rgba(255, 255, 255, .68);
+    --line: rgba(255, 255, 255, .14);
+    --paper: #f6f0e7;
+    --ink: #1d1b18;
+    --fox: #ff7b3a;
+    --lion: #f2c14e;
+    --mint: #86efac;
+    --shadow: 0 16px 50px rgba(0, 0, 0, .45);
+    --radius: 18px;
+    
+    /* 👇 这里改了：正文用宋体，像读书一样 */
+    --font: "Noto Serif SC", "Songti SC", serif; 
+    
+    /* 👇 新增：专门给标题用的手写字体 */
+    --font-hand: "Ma Shan Zheng", cursive;
 }
 [data-theme="light"]{
 --bg: #fff9f1;
@@ -524,4 +529,31 @@ justify-content: center;
         left: -16%; /* 星星全部在左侧 */
         right: auto !important;
     }
+}
+/* --- 🖋️ 字体美化补丁 --- */
+
+/* 1. 让大标题和 Logo 使用手写书法字体 */
+.brand-text h1, 
+.modal-title,
+.envelope .title {
+    font-family: var(--font-hand);
+    font-weight: 400; /* 书法字体不需要加粗 */
+}
+
+/* 2. 调整大标题的大小，让书法字更明显 */
+.brand-text h1 {
+    font-size: 26px !important; /* 稍微大一点 */
+    letter-spacing: 2px;
+}
+
+/* 3. 调整信件内容的行距，让宋体字呼吸感更强 */
+.letter {
+    line-height: 2.2; /* 这种行距读信最舒服 */
+    font-size: 16px;
+    text-align: justify; /* 文字两端对齐 */
+}
+
+/* 4. 优化标签的字体，让它看起来圆润一点 */
+.tag, .badge, .pill {
+    font-family: system-ui, -apple-system, sans-serif; /* 标签还是用黑体清晰 */
 }

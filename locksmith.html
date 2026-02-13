@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>小狐狸的加密工具</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #fdf5f5; color: #5d4037; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: #ff7b3a; text-align: center; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { background: #ff7b3a; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 20px; font-size: 16px; }
+        button:hover { background: #f2c14e; }
+        .result-box { margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; word-break: break-all; font-family: monospace; display: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔐 信件加密工具</h1>
+    <p>用这个工具把你的信变成乱码，然后再放进 .txt 文件里。</p>
+
+    <label>1. 设置一个开启安全屋的密码（记住它！）：</label>
+    <input type="text" id="password" placeholder="比如：20250520" value="20250520">
+
+    <label>2. 粘贴你要写的信（或者验证口令）：</label>
+    <textarea id="content" rows="6" placeholder="亲爱的阿予..."></textarea>
+
+    <button onclick="encrypt()">加密生成乱码</button>
+
+    <div id="resultArea" class="result-box">
+        <p><strong>👇 复制下面这段乱码，覆盖到你的 .txt 文件里：</strong></p>
+        <div id="cipherResult" style="color:#e91e63"></div>
+    </div>
+</div>
+
+<script>
+    // 简单的异或加密算法 (XOR Cipher)
+    function xorEncrypt(text, key) {
+        if (!key) return text;
+        let result = "";
+        for (let i = 0; i < text.length; i++) {
+            // 将字符与密钥进行异或运算，转为 Base64 存储
+            const charCode = text.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+            result += String.fromCharCode(charCode);
+        }
+        return btoa(unescape(encodeURIComponent(result))); // 转为 Base64 防止乱码
+    }
+
+    function encrypt() {
+        const pass = document.getElementById('password').value;
+        const text = document.getElementById('content').value;
+        if (!pass || !text) { alert("密码和内容都不能为空哦！"); return; }
+        
+        const encrypted = xorEncrypt(text, pass);
+        document.getElementById('cipherResult').innerText = encrypted;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+</script>
+</body>
+</html>

@@ -545,6 +545,8 @@ function renderGrid(){
         const star = favs.has(l.id) ? "⭐" : "☆";
         const mood = l.mood || "温柔";
         const tags = (l.tags || []).slice(0, 4);
+        
+        // 👇 重点修改了下面 innerHTML 的部分
         card.innerHTML = `
             <div class="envelope">
                 <div class="card-top">
@@ -552,13 +554,17 @@ function renderGrid(){
                     <div class="stars" title="收藏状态">${star}</div>
                 </div>
                 <div class="title">${escapeHtml(l.title)}</div>
-                <div class="meta"><span>📅 ${l.date}</span></div>
-                ${l.from ? `<span>✍️ ${escapeHtml(l.from)}</span>` : ""}
+                
+                <div class="meta">
+                    <span>📅 ${l.date}</span>
+                    ${l.from ? `<span style="margin-left: 8px;">✍️ ${escapeHtml(l.from)}</span>` : ""}
                 </div>
+                
                 <div class="snippet">${escapeHtml(l.snippet)}</div>
                 <div class="tags">${tags.map(t => `<span class="pill">#${t}</span>`).join("")}</div>
             </div>
         `;
+        
         card.onclick = () => openLetterById(l.id);
         grid.appendChild(card);
     });

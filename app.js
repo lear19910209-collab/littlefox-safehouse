@@ -541,7 +541,7 @@ function renderGrid(){
     state.filtered.forEach((l) => {
         const card = document.createElement("div");
         card.className = "card";
-        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `打开信件：${l.title}`);
         const star = favs.has(l.id) ? "⭐" : "☆";
         const mood = l.mood || "温柔";
         const tags = (l.tags || []).slice(0, 4);
@@ -549,10 +549,12 @@ function renderGrid(){
             <div class="envelope">
                 <div class="card-top">
                     <div class="badge">🦊🦁 ${mood}</div>
-                    <div class="stars">${star}</div>
+                    <div class="stars" title="收藏状态">${star}</div>
                 </div>
                 <div class="title">${escapeHtml(l.title)}</div>
                 <div class="meta"><span>📅 ${l.date}</span></div>
+                ${l.from ? `<span>✍️ ${escapeHtml(l.from)}</span>` : ""}
+                </div>
                 <div class="snippet">${escapeHtml(l.snippet)}</div>
                 <div class="tags">${tags.map(t => `<span class="pill">#${t}</span>`).join("")}</div>
             </div>
@@ -622,6 +624,7 @@ function modalSubLine(letter){
     return [
         letter.date ? `📅 ${letter.date}` : "",
         letter.mood ? `🫧 ${letter.mood}` : "",
+        letter.from ? `✍️ ${letter.from}` : "",
         tags ? `🏷️ ${tags}` : ""
     ].filter(Boolean).join("  ");
 }

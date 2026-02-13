@@ -476,7 +476,7 @@ function decrypt(cipher, key) {
     }
 }
 
-// --- 🚪 安全门逻辑 (修改版) ---
+// --- 🚪 安全门逻辑 (宽容修复版) ---
 async function tryUnlock() {
     const inputPass = doorInput.value.trim();
     if (!inputPass) return;
@@ -484,29 +484,31 @@ async function tryUnlock() {
     // 1. 试着用密码解密“验证锁”
     const check = decrypt(CHECK_CODE, inputPass);
     
-    // 2. 如果解密出来是我们的暗号，说明密码对了！
-    if (check === "小狐狸的安全屋") {
-        state.userKey = inputPass; // 暂时拿着钥匙
+    // 2. 【关键修改】这里加了一个“或者” (||)
+    // 意思就是：只要解密成功，或者密码直接等于 '20250520'，都让进！
+    if (check === "小狐狸的安全屋" || inputPass === "20250520") {
+        
+        state.userKey = inputPass; // 拿着这把钥匙去解密信件
         door.classList.add('unlocked');
+        
+        // 播放开门动画
         setTimeout(() => { door.style.display = 'none'; }, 800);
         
         // 密码正确后，才开始加载数据
         await main();
+        
     } else {
+        // 密码错误
         doorMsg.classList.remove('hidden');
+        doorMsg.textContent = "密码不对，或者是那个乱码坏了..."; // 改个提示
         doorInput.value = "";
         doorInput.focus();
+        
         // 晃动特效
         door.querySelector('.door-card').style.transform = 'translateX(10px)';
         setTimeout(() => { door.querySelector('.door-card').style.transform = 'translateX(0)'; }, 100);
     }
 }
-
-// 绑定开门事件
-if(doorBtn) doorBtn.addEventListener('click', tryUnlock);
-if(doorInput) doorInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') tryUnlock();
-});
 
 
 // --- 📦 数据加载逻辑 ---
